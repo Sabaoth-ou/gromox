@@ -1177,7 +1177,14 @@ int imap_cmd_parser_noop(int argc, char **argv, IMAP_CONTEXT *pcontext)
 {
 	if (pcontext->proto_stat == iproto_stat::select)
 		imap_parser_echo_modify(pcontext, NULL);
-	return 1702;
+	
+	char buff[1024];
+	size_t string_length = 0;
+
+	snprintf(buff, sizeof(buff), "%s %s", argv[0],
+		         resource_get_imap_code(1925, 1, &string_length));
+	imap_parser_safe_write(pcontext, buff, string_length);
+	return DISPATCH_CONTINUE;
 }
 
 int imap_cmd_parser_logout(int argc, char **argv, IMAP_CONTEXT *pcontext)
@@ -1186,7 +1193,7 @@ int imap_cmd_parser_logout(int argc, char **argv, IMAP_CONTEXT *pcontext)
 	size_t string_length = 0;
 	
 	/* IMAP_CODE_2160001: BYE logging out */
-	auto imap_reply_str = resource_get_imap_code(1601, 1, &string_length);
+	auto imap_reply_str = resource_get_imap_code(1924, 1, &string_length);
 	/* IMAP_CODE_2170003: OK LOGOUT completed */
 	auto imap_reply_str2 = resource_get_imap_code(1703, 1, &string_length);
 	
@@ -1424,7 +1431,7 @@ int imap_cmd_parser_idle(int argc, char **argv, IMAP_CONTEXT *pcontext)
 	gx_strlcpy(pcontext->tag_string, argv[0], std::size(pcontext->tag_string));
 	pcontext->sched_stat = isched_stat::idling;
 	size_t len = 0;
-	auto reply = resource_get_imap_code(1602, 1, &len);
+	auto reply = resource_get_imap_code(1926, 1, &len);
 	pcontext->connection.write(reply, len);
 	return 0;
 }
